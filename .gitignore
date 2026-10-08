@@ -16,6 +16,7 @@ ReleaseOutput/
 *.zip
 
 # Local Runtime Data & Downloads
+chat_docs.md
 *.ermiya
 *.tmp
 database.json
