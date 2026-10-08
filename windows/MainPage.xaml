@@ -1,0 +1,616 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="ErmiyaDesktop.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ErmiyaDesktop"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <local:ProgressWidthConverter x:Key="WidthConverter"/>
+    </Page.Resources>
+
+    <Grid>
+    <NavigationView x:Name="NavView" PaneDisplayMode="Left" IsSettingsVisible="True" IsBackButtonVisible="Collapsed" SelectionChanged="NavView_SelectionChanged" BackRequested="NavView_BackRequested">
+        <NavigationView.MenuItems>
+            <NavigationViewItem x:Name="ItemAllDownloads" Content="All Downloads" Tag="all">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE8F1;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem x:Name="ItemUnfinished" Content="Unfinished" Tag="unfinished">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE118;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem x:Name="ItemCompleted" Content="Completed" Tag="completed">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE10B;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+
+            <NavigationViewItemHeader x:Name="HeaderCategories" Content="Categories" />
+            <NavigationViewItem x:Name="ItemCompressed" Content="Compressed" Tag="cat_zip">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE118;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem x:Name="ItemDocuments" Content="Documents" Tag="cat_docs">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE8A5;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem x:Name="ItemMusic" Content="Music" Tag="cat_music">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE8D6;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem x:Name="ItemPrograms" Content="Programs" Tag="cat_progs">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE7EE;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem x:Name="ItemVideo" Content="Video" Tag="cat_video">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE714;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+
+            <NavigationViewItemHeader x:Name="HeaderQueues" Content="Queues" />
+            <NavigationViewItem x:Name="ItemMainQueue" Content="Main Queue" Tag="queue_main">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE8FD;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem x:Name="ItemNightQueue" Content="Night Queue" Tag="queue_night">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE708;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </NavigationView.MenuItems>
+
+        <Grid>
+            <!-- Downloads List View -->
+            <Grid x:Name="DownloadsViewGrid" Visibility="Visible">
+                <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top Toolbar -->
+            <CommandBar Grid.Row="0" DefaultLabelPosition="Right" Background="Transparent">
+                <AppBarButton x:Name="BtnAddUrl" Icon="Add" Label="Add URL" Click="AddDownloadBtn_Click" />
+                <AppBarButton x:Name="BtnBatchUrls" Icon="List" Label="Batch URLs">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Text="Batch from Text / Webpage..." Icon="List" Click="BatchDownloadBtn_Click" />
+                            <MenuFlyoutItem Text="Sequential Wildcard Batch (e.g. img*.jpg)..." Icon="Bullets" Click="BatchWildcardBtn_Click" />
+                            <MenuFlyoutSeparator />
+                            <MenuFlyoutItem Text="Download All Links from Webpage..." Icon="Globe" Click="GrabAllLinksBtn_Click" />
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+                <AppBarButton x:Name="BtnResume" Icon="Play" Label="Resume" Click="TopMenuResume_Click" />
+                <AppBarButton x:Name="BtnPause" Icon="Pause" Label="Pause" Click="TopMenuPause_Click" />
+                <AppBarButton x:Name="BtnStopAll" Icon="Stop" Label="Stop All" Click="TopMenuStopAll_Click" />
+                <AppBarSeparator />
+                <AppBarButton x:Name="BtnRemove" Icon="Delete" Label="Remove" Click="TopMenuDelete_Click" />
+                <AppBarButton x:Name="BtnRemoveCompleted" Icon="Delete" Label="Remove Completed" Click="TopMenuClear_Click" />
+                <AppBarSeparator />
+                <AppBarButton x:Name="BtnExportImport" Icon="Share" Label="Export / Import">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Text="Export Download List..." Icon="Share" Click="ExportList_Click" />
+                            <MenuFlyoutItem Text="Import URLs from Text File..." Icon="OpenFile" Click="ImportList_Click" />
+                        </MenuFlyout>
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+                <AppBarSeparator />
+                <AppBarButton x:Name="BtnScheduler" Icon="Clock" Label="Scheduler" Click="TopMenuScheduler_Click" />
+                <AppBarButton x:Name="BtnOptions" Icon="Manage" Label="Options" Click="TopMenuOptions_Click" />
+            </CommandBar>
+
+            <!-- Columns Header (Interactive Sorting) -->
+            <Grid Grid.Row="1" Padding="12,8" Background="{ThemeResource LayerFillColorAltBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,1,0,1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1.5*"/>
+                    <ColumnDefinition Width="1.5*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4" Background="Transparent" PointerPressed="ColHeader_PointerPressed" Tag="FileName">
+                    <TextBlock x:Name="ColFileName" Text="File Name" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Name="ColFileNameGlyph" Text=" ▲" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" Visibility="Collapsed" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" Background="Transparent" PointerPressed="ColHeader_PointerPressed" Tag="Size">
+                    <TextBlock x:Name="ColSize" Text="Size" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Name="ColSizeGlyph" Text=" ▲" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" Visibility="Collapsed" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" Background="Transparent" PointerPressed="ColHeader_PointerPressed" Tag="Status">
+                    <TextBlock x:Name="ColStatus" Text="Status" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Name="ColStatusGlyph" Text=" ▲" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" Visibility="Collapsed" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" Background="Transparent" PointerPressed="ColHeader_PointerPressed" Tag="TimeLeft">
+                    <TextBlock x:Name="ColTimeLeft" Text="Time Left" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Name="ColTimeLeftGlyph" Text=" ▲" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" Visibility="Collapsed" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4" Background="Transparent" PointerPressed="ColHeader_PointerPressed" Tag="TransferRate">
+                    <TextBlock x:Name="ColTransferRate" Text="Transfer Rate" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Name="ColTransferRateGlyph" Text=" ▲" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" Visibility="Collapsed" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="5" Orientation="Horizontal" Spacing="4" Background="Transparent" PointerPressed="ColHeader_PointerPressed" Tag="LastTry">
+                    <TextBlock x:Name="ColLastTry" Text="Last Try" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock x:Name="ColLastTryGlyph" Text=" ▲" FontWeight="Bold" FontSize="10" VerticalAlignment="Center" Visibility="Collapsed" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Downloads List -->
+            <ListView x:Name="DownloadsList" Grid.Row="2" SelectionMode="Extended" KeyDown="DownloadsList_KeyDown" ShowsScrollingPlaceholders="True">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="12,8" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1" Background="Transparent" DoubleTapped="Grid_DoubleTapped">
+                            <Grid.ContextFlyout>
+                                <MenuFlyout>
+                                    <!-- File Execution & Location -->
+                                    <MenuFlyoutItem Text="Open File" Icon="OpenFile" Click="MenuOpen_Click" />
+                                    <MenuFlyoutItem Text="Open With..." Icon="OpenWith" Click="MenuOpenWith_Click" />
+                                    <MenuFlyoutItem Text="Open Folder in Explorer" Icon="Folder" Click="MenuOpenFolder_Click" />
+                                    <MenuFlyoutSeparator />
+
+                                    <!-- Transfer Controls -->
+                                    <MenuFlyoutItem Text="Resume / Start" Icon="Play" Click="MenuResume_Click" />
+                                    <MenuFlyoutItem Text="Pause" Icon="Pause" Click="MenuPause_Click" />
+                                    <MenuFlyoutItem Text="Redownload from Beginning" Icon="Refresh" Click="MenuRedownload_Click" />
+                                    <MenuFlyoutSeparator />
+
+                                    <!-- Queue Routing -->
+                                    <MenuFlyoutSubItem Text="Move to Queue" Icon="Bullets">
+                                        <MenuFlyoutItem Text="Main Queue" Click="MenuMoveQueue_Click" Tag="Main Queue" />
+                                        <MenuFlyoutItem Text="Night Queue" Click="MenuMoveQueue_Click" Tag="Night Queue" />
+                                        <MenuFlyoutItem Text="Sync Queue" Click="MenuMoveQueue_Click" Tag="Sync Queue" />
+                                    </MenuFlyoutSubItem>
+
+                                    <!-- Copy Data -->
+                                    <MenuFlyoutSubItem Text="Copy Information" Icon="Copy">
+                                        <MenuFlyoutItem Text="Copy Download Address (URL)" Icon="Copy" Click="MenuCopyUrl_Click" />
+                                        <MenuFlyoutItem Text="Copy File Name" Click="MenuCopyFileName_Click" />
+                                        <MenuFlyoutItem Text="Copy Full File Path" Click="MenuCopyPath_Click" />
+                                    </MenuFlyoutSubItem>
+                                    <MenuFlyoutSeparator />
+
+                                    <!-- Verification & Properties -->
+                                    <MenuFlyoutItem Text="Verify Checksum (MD5 / SHA-256)" Icon="Find" Click="MenuVerifyChecksum_Click" />
+                                    <MenuFlyoutItem Text="Properties" Icon="Document" Click="MenuProperties_Click" />
+                                    <MenuFlyoutSeparator />
+
+                                    <!-- Deletion -->
+                                    <MenuFlyoutItem Text="Remove from FoxLoader" Icon="Delete" Click="MenuDelete_Click" Foreground="{ThemeResource SystemFillColorCautionBrush}" />
+                                    <MenuFlyoutItem Text="Delete File from Disk" Icon="Delete" Click="MenuDeleteFromDisk_Click" Foreground="{ThemeResource SystemFillColorCriticalBrush}" />
+                                </MenuFlyout>
+                            </Grid.ContextFlyout>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1.5*"/>
+                                <ColumnDefinition Width="1.5*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Name & Progress -->
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE896;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="{Binding FileName}" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding FileName}"/>
+                                </StackPanel>
+                                <Grid Margin="24,4,0,0">
+                                    <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="2" Height="8" Background="{ThemeResource LayerFillColorDefaultBrush}">
+                                        <Viewbox Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                            <ItemsControl ItemsSource="{Binding Chunks}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal" />
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Width="20" Height="8">
+                                                            <Rectangle Fill="{ThemeResource AccentFillColorDefaultBrush}" HorizontalAlignment="Left">
+                                                                <Rectangle.Width>
+                                                                    <Binding Path="ProgressWidth" Converter="{StaticResource WidthConverter}" />
+                                                                </Rectangle.Width>
+                                                            </Rectangle>
+                                                            <Rectangle Width="1" Fill="{ThemeResource CardStrokeColorDefaultBrush}" HorizontalAlignment="Right" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </Viewbox>
+                                    </Border>
+                                    <TextBlock Text="{Binding PercentageText}" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,12,0,0"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- Size -->
+                            <TextBlock Grid.Column="1" Text="{Binding TotalSizeText}" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            
+                            <!-- Status -->
+                            <TextBlock Grid.Column="2" Text="{Binding Status}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                            
+                            <!-- Time Left -->
+                            <TextBlock Grid.Column="3" Text="{Binding RemainingText}" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            
+                            <!-- Speed -->
+                            <TextBlock Grid.Column="4" Text="{Binding SpeedText}" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            
+                            <!-- Last Try -->
+                            <TextBlock Grid.Column="5" Text="Today" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            </Grid>
+
+            <!-- In-App Integrated Settings View -->
+            <local:SettingsControl x:Name="SettingsView" Visibility="Collapsed" CloseRequested="SettingsView_CloseRequested"/>
+        </Grid>
+    </NavigationView>
+
+        <!-- New Download Modal -->
+        <ContentDialog x:Name="NewDownloadDialog"
+                       Title="Enter new address to download"
+                       PrimaryButtonText="OK"
+                       CloseButtonText="Cancel"
+                       DefaultButton="Primary"
+                       PrimaryButtonClick="NewDownloadDialog_PrimaryButtonClick">
+            <StackPanel Spacing="16" Margin="0,16,0,0" MinWidth="500">
+                <TextBox x:Name="UrlTextBox" Header="Address" PlaceholderText="https://..." TextChanged="UrlTextBox_TextChanged" />
+                <TextBox x:Name="FileNameTextBox" Header="File Name" PlaceholderText="example.zip" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="SavePathTextBox" Header="Save to" PlaceholderText="C:\Downloads" Margin="0,0,8,0" />
+                    <Button x:Name="BrowseButton" Content="..." Grid.Column="1" VerticalAlignment="Bottom" Height="32" Click="BrowseButton_Click" />
+                </Grid>
+                <ComboBox x:Name="CategoryComboBox" Header="Category" SelectedIndex="0" HorizontalAlignment="Stretch" SelectionChanged="CategoryComboBox_SelectionChanged">
+                    <ComboBoxItem Content="General"/>
+                    <ComboBoxItem Content="Compressed"/>
+                    <ComboBoxItem Content="Documents"/>
+                    <ComboBoxItem Content="Music"/>
+                    <ComboBoxItem Content="Programs"/>
+                    <ComboBoxItem Content="Video"/>
+                </ComboBox>
+                <ComboBox x:Name="QueueComboBox" Header="Queue" SelectedIndex="0" HorizontalAlignment="Stretch">
+                    <ComboBoxItem Content="Main Queue"/>
+                    <ComboBoxItem Content="Night Queue"/>
+                </ComboBox>
+                <CheckBox x:Name="StartNowCheckBox" Content="Start download immediately" IsChecked="True" />
+            </StackPanel>
+        </ContentDialog>
+
+        <!-- Batch Download & Link Grabber Modal -->
+        <ContentDialog x:Name="BatchAddDialog"
+                       Title="Batch Download &amp; Link Grabber"
+                       PrimaryButtonText="Start All"
+                       SecondaryButtonText="Add to Queue"
+                       CloseButtonText="Cancel"
+                       PrimaryButtonClick="BatchAddDialog_PrimaryButtonClick"
+                       SecondaryButtonClick="BatchAddDialog_SecondaryButtonClick">
+            <StackPanel Spacing="14" Margin="0,16,0,0" MinWidth="540">
+                <!-- Grab from Page URL bar -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="BatchWebpageUrlBox" Header="Extract links from Webpage (Optional)" PlaceholderText="https://example.com/downloads.html" Margin="0,0,8,0"/>
+                    <Button Content="Grab Links" Grid.Column="1" VerticalAlignment="Bottom" Height="32" Click="GrabLinksFromWebpage_Click"/>
+                </Grid>
+
+                <TextBlock Text="Download URLs (one per line):" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <TextBox x:Name="BatchUrlsTextBox" AcceptsReturn="True" Height="130" PlaceholderText="https://example.com/file1.zip&#10;https://example.com/file2.zip"/>
+                
+                <CheckBox x:Name="HideHtmlCheckBox" Content="Hide HTML files (.html, .htm, .php, .asp)" IsChecked="True"/>
+
+                <RadioButtons x:Name="BatchRoutingRadio" Header="Save Location" SelectedIndex="0">
+                    <RadioButton Content="Auto-route by Category (Music, Video, Compressed, Programs, Documents)"/>
+                    <RadioButton Content="Save all files to specific folder below"/>
+                </RadioButtons>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox x:Name="BatchQueueComboBox" Header="Queue" SelectedIndex="0" HorizontalAlignment="Stretch" Margin="0,0,8,0">
+                        <ComboBoxItem Content="Main Queue"/>
+                        <ComboBoxItem Content="Night Queue"/>
+                    </ComboBox>
+                    <TextBox x:Name="BatchSavePathBox" Header="Custom Folder" Grid.Column="1" Margin="8,0,0,0"/>
+                </Grid>
+            </StackPanel>
+        </ContentDialog>
+
+        <!-- Delete Confirmation Modal (User-Decisioned Disk Delete) -->
+        <ContentDialog x:Name="DeleteConfirmDialog"
+                       Title="Delete Download"
+                       PrimaryButtonText="Delete"
+                       CloseButtonText="Cancel"
+                       DefaultButton="Primary"
+                       PrimaryButtonClick="DeleteConfirmDialog_PrimaryButtonClick">
+            <StackPanel Spacing="12" Margin="0,16,0,0">
+                <TextBlock x:Name="DeleteFileNameText" FontWeight="SemiBold"/>
+                <TextBlock Text="Are you sure you want to remove this download from FoxLoader?" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <CheckBox x:Name="DeleteFromDiskCheckBox" Content="Also delete downloaded file from disk" IsChecked="False" Margin="0,8,0,0"/>
+            </StackPanel>
+        </ContentDialog>
+
+        <!-- Properties Modal with Checksum Calculator -->
+        <ContentDialog x:Name="PropertiesDialog"
+                       Title="Download Properties"
+                       CloseButtonText="Close">
+            <StackPanel Spacing="12" Margin="0,16,0,0" MinWidth="440">
+                <TextBlock x:Name="PropFileNameText" FontWeight="SemiBold" FontSize="16" TextTrimming="CharacterEllipsis" />
+                <TextBlock x:Name="PropStatusText" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="URL:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,4"/>
+                    <TextBox x:Name="PropUrlText" Grid.Row="0" Grid.Column="1" IsReadOnly="True" Margin="0,4"/>
+                    
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Size:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,4"/>
+                    <TextBlock x:Name="PropSizeText" Grid.Row="1" Grid.Column="1" Margin="0,4"/>
+                    
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Speed:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,4"/>
+                    <TextBlock x:Name="PropSpeedText" Grid.Row="2" Grid.Column="1" Margin="0,4"/>
+                    
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Path:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Margin="0,4"/>
+                    <TextBlock x:Name="PropPathText" Grid.Row="3" Grid.Column="1" Margin="0,4"/>
+                </Grid>
+
+                <!-- Checksum Section -->
+                <StackPanel Spacing="8" Margin="0,16,0,0">
+                    <TextBlock Text="File Integrity / Checksum" FontWeight="SemiBold"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="ChecksumTextBox" PlaceholderText="Hash will appear here..." IsReadOnly="True" Margin="0,0,8,0"/>
+                        <Button Content="MD5" Grid.Column="1" Click="CalculateMD5_Click" Margin="0,0,8,0"/>
+                        <Button Content="SHA-256" Grid.Column="2" Click="CalculateSHA256_Click"/>
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
+        </ContentDialog>
+
+        <!-- Sequential Wildcard Batch Dialog -->
+        <ContentDialog x:Name="BatchWildcardDialog"
+                       Title="Batch download"
+                       PrimaryButtonText="OK"
+                       CloseButtonText="Cancel"
+                       DefaultButton="Primary"
+                       PrimaryButtonClick="BatchWildcardDialog_PrimaryButtonClick">
+            <StackPanel Spacing="12" Margin="0,12,0,0" MinWidth="520">
+                <TextBlock Text="It's possible to add a group of sequential file names like img001.jpg, img002.jpg, etc., img100.jpg to FoxLoader download queue. Use the asterisk wildcard (*) for the file name pattern.&#10;For example: http://www.example.com/pictures/img*.jpg"
+                           TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12.5"/>
+
+                <TextBox x:Name="WildcardAddressBox" Header="Address" PlaceholderText="http://www.example.com/pictures/img*.jpg" TextChanged="WildcardAddress_TextChanged"/>
+
+                <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="12" Background="{ThemeResource LayerFillColorDefaultBrush}">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Replace asterisk to" FontWeight="SemiBold"/>
+                        <StackPanel Orientation="Horizontal" Spacing="24">
+                            <RadioButton x:Name="WildcardNumbersRadio" Content="Numbers" IsChecked="True" Checked="WildcardParam_Changed"/>
+                            <RadioButton x:Name="WildcardLettersRadio" Content="Letters" Checked="WildcardParam_Changed"/>
+                        </StackPanel>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <NumberBox x:Name="WildcardFromBox" Header="From:" Value="1" SpinButtonPlacementMode="Inline" ValueChanged="WildcardParam_Changed" Margin="0,0,6,0"/>
+                            <NumberBox x:Name="WildcardToBox" Header="To:" Value="10" SpinButtonPlacementMode="Inline" ValueChanged="WildcardParam_Changed" Grid.Column="1" Margin="6,0,6,0"/>
+                            <NumberBox x:Name="WildcardDigitsBox" Header="Wildcard size:" Value="2" SpinButtonPlacementMode="Inline" ValueChanged="WildcardParam_Changed" Grid.Column="2" Margin="6,0,0,0"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Live Preview -->
+                <StackPanel Spacing="4">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="First file:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+                        <TextBox x:Name="WildcardPreviewFirst" Grid.Column="1" IsReadOnly="True" Height="32"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Second file:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+                        <TextBox x:Name="WildcardPreviewSecond" Grid.Column="1" IsReadOnly="True" Height="32"/>
+                    </Grid>
+                    <TextBlock Text="..." HorizontalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Last file:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center"/>
+                        <TextBox x:Name="WildcardPreviewLast" Grid.Column="1" IsReadOnly="True" Height="32"/>
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
+        </ContentDialog>
+
+        <!-- Export Download List Dialog -->
+        <ContentDialog x:Name="ExportListDialog"
+                       Title="Export download list"
+                       PrimaryButtonText="OK"
+                       CloseButtonText="Cancel"
+                       DefaultButton="Primary"
+                       PrimaryButtonClick="ExportListDialog_PrimaryButtonClick">
+            <StackPanel Spacing="14" Margin="0,16,0,0" MinWidth="340">
+                <RadioButtons x:Name="ExportOptionsRadio" SelectedIndex="2">
+                    <RadioButton Content="Export download queue"/>
+                    <RadioButton Content="Export selected files"/>
+                    <RadioButton Content="Export all files"/>
+                </RadioButtons>
+            </StackPanel>
+        </ContentDialog>
+
+        <!-- Download All Links Dialog (Matching IDM dialog in idm_dl_all_links_page.png) -->
+        <ContentDialog x:Name="BatchAllLinksDialog"
+                       Title="Download All Links with FoxLoader"
+                       PrimaryButtonText="OK"
+                       CloseButtonText="Cancel"
+                       DefaultButton="Primary"
+                       PrimaryButtonClick="BatchAllLinksDialog_PrimaryButtonClick">
+            <Grid MinWidth="750" MaxWidth="960" MinHeight="440" MaxHeight="560" RowSpacing="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Please check the links, which you want to add to the download list of FoxLoader, and click OK button."
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12.5"/>
+
+                <!-- Filter & Quick Actions -->
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="BatchAllLinksSearchBox" PlaceholderText="Search or filter links (e.g. .zip, movie, pdf)..." TextChanged="BatchAllLinksSearch_TextChanged" Margin="0,0,8,0"/>
+                    <Button Content="Check All" Grid.Column="1" Click="BatchAllLinksCheckAll_Click" Margin="0,0,8,0"/>
+                    <Button Content="Uncheck All" Grid.Column="2" Click="BatchAllLinksUncheckAll_Click"/>
+                </Grid>
+
+                <!-- Links Table -->
+                <Border Grid.Row="2" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="6" Background="{ThemeResource LayerFillColorDefaultBrush}">
+                    <ListView x:Name="BatchAllLinksListView" SelectionMode="None">
+                        <ListView.HeaderTemplate>
+                            <DataTemplate>
+                                <Grid Padding="12,6" Background="{ThemeResource LayerFillColorAltBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="3*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="" Grid.Column="0"/>
+                                    <TextBlock Text="File Name" Grid.Column="1" FontWeight="SemiBold"/>
+                                    <TextBlock Text="File Type" Grid.Column="2" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Download From" Grid.Column="3" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Link Text" Grid.Column="4" FontWeight="SemiBold"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.HeaderTemplate>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="8,4" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40"/>
+                                        <ColumnDefinition Width="2.5*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="3*"/>
+                                        <ColumnDefinition Width="2*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" Grid.Column="0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding FileName}" Grid.Column="1" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding FileType}" Grid.Column="2" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    <TextBlock Text="{Binding Url}" Grid.Column="3" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{Binding Url}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <TextBlock Text="{Binding LinkText}" Grid.Column="4" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Border>
+
+                <!-- Options & Save To Controls -->
+                <Grid Grid.Row="3" Margin="0,8,0,0" ColumnSpacing="20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Save To (Left) -->
+                    <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="6" Padding="10" Background="{ThemeResource LayerFillColorDefaultBrush}">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Save To" FontWeight="SemiBold"/>
+                            <RadioButton x:Name="SaveToCategoryRuleRadio" Content="Every file according to category" IsChecked="True"/>
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <RadioButton x:Name="SaveToOneCategoryRadio" Content="All to category:" VerticalAlignment="Center"/>
+                                <ComboBox x:Name="SaveToCategoryComboBox" SelectedIndex="0" Width="140">
+                                    <ComboBoxItem Content="General"/>
+                                    <ComboBoxItem Content="Compressed"/>
+                                    <ComboBoxItem Content="Documents"/>
+                                    <ComboBoxItem Content="Music"/>
+                                    <ComboBoxItem Content="Programs"/>
+                                    <ComboBoxItem Content="Video"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <RadioButton x:Name="SaveToOneDirRadio" Content="All to folder:" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <TextBox x:Name="SaveToOneDirTextBox" Grid.Column="1" Margin="0,0,6,0"/>
+                                <Button Content="..." Grid.Column="2" Click="BrowseSaveToOneDir_Click"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Filtering Toggles (Right) -->
+                    <StackPanel Grid.Column="1" Spacing="6">
+                        <CheckBox x:Name="BatchHideHtmlCheck" Content="Hide HTML files" IsChecked="True" Checked="BatchFilterOption_Changed" Unchecked="BatchFilterOption_Changed"/>
+                        <CheckBox x:Name="BatchHideImagesCheck" Content="Hide image files" IsChecked="False" Checked="BatchFilterOption_Changed" Unchecked="BatchFilterOption_Changed"/>
+                        <CheckBox x:Name="BatchHideRepeatedCheck" Content="Hide repeated files" IsChecked="True" Checked="BatchFilterOption_Changed" Unchecked="BatchFilterOption_Changed"/>
+                        <CheckBox x:Name="BatchStartImmediatelyCheck" Content="Start downloads immediately" IsChecked="False"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </ContentDialog>
+    </Grid>
+</Page>

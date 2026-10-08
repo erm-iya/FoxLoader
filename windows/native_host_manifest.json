@@ -1,0 +1,9 @@
+{
+  "name": "com.ermiya.downloadmanager",
+  "description": "FoxLoader Native Messaging Host",
+  "path": "ermiya-core.exe",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://*/"
+  ]
+}

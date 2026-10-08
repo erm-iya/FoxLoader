@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ErmiyaDesktop (Unpackaged)": {
+      "commandName": "Project"
+    },
+    "ErmiyaDesktop (Package)": {
+      "commandName": "MsixPackage"
+    }
+  }
+}

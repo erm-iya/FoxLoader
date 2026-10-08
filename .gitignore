@@ -1,0 +1,29 @@
+# Rust
+target*/
+
+# .NET / Visual Studio
+**/[Bb]in/
+**/[Oo]bj/
+.vs/
+*.user
+*.suo
+
+# Build & Runtime Logs
+*.log
+
+# Releases & Packages
+ReleaseOutput/
+*.zip
+
+# Local Runtime Data & Downloads
+*.ermiya
+*.tmp
+database.json
+downloads/
+
+# IDEs & OS
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store

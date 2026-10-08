@@ -1,0 +1,160 @@
+{
+  "engine": {
+    "default_save_path": "C:\\Users\\Ermiya\\Downloads\\FoxLoader",
+    "incomplete_extension": true,
+    "default_threads": 16,
+    "dynamic_parts": true,
+    "min_part_size": 102400,
+    "use_server_last_modified": true,
+    "auto_retry_count": 3,
+    "auto_retry_interval_secs": 2,
+    "ignore_ssl_certificates": false,
+    "custom_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 FoxLoader/1.0",
+    "track_deleted_files": true,
+    "delete_file_on_cancel": false
+  },
+  "speed_limiter": {
+    "enabled": false,
+    "global_speed_limit": 0
+  },
+  "network": {
+    "proxy_mode": "Direct",
+    "proxy_type": "HTTP",
+    "proxy_host": "",
+    "proxy_port": 8080,
+    "proxy_username": null,
+    "proxy_password": null,
+    "proxy_pac_url": null,
+    "dns_mode": "System",
+    "doh_provider": "Cloudflare",
+    "doh_url": "https://cloudflare-dns.com/dns-query"
+  },
+  "per_host_settings": [
+    {
+      "host": "luximo.ir",
+      "username": "coder",
+      "password": null,
+      "user_agent": null,
+      "threads": 2,
+      "speed_limit": null
+    }
+  ],
+  "queues": [
+    {
+      "id": "main",
+      "name": "Main Queue",
+      "max_concurrent": 3,
+      "stop_on_empty": true,
+      "scheduler_enabled": false,
+      "start_time": "02:00",
+      "stop_time": "07:00",
+      "active_days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "power_action_on_finish": "None"
+    },
+    {
+      "id": "night",
+      "name": "Night Queue",
+      "max_concurrent": 2,
+      "stop_on_empty": true,
+      "scheduler_enabled": true,
+      "start_time": "02:00",
+      "stop_time": "07:00",
+      "active_days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "power_action_on_finish": "Sleep"
+    }
+  ],
+  "categories": [
+    {
+      "name": "Compressed",
+      "folder": "Compressed",
+      "extensions": [
+        "zip",
+        "rar",
+        "7z",
+        "tar",
+        "gz",
+        "iso"
+      ]
+    },
+    {
+      "name": "Documents",
+      "folder": "Documents",
+      "extensions": [
+        "doc",
+        "docx",
+        "pdf",
+        "txt",
+        "xlsx",
+        "pptx"
+      ]
+    },
+    {
+      "name": "Music",
+      "folder": "Music",
+      "extensions": [
+        "mp3",
+        "wav",
+        "flac",
+        "aac",
+        "ogg",
+        "m4a"
+      ]
+    },
+    {
+      "name": "Programs",
+      "folder": "Programs",
+      "extensions": [
+        "exe",
+        "msi",
+        "bat",
+        "apk",
+        "deb",
+        "bin"
+      ]
+    },
+    {
+      "name": "Video",
+      "folder": "Video",
+      "extensions": [
+        "mp4",
+        "mkv",
+        "avi",
+        "mov",
+        "webm",
+        "flv"
+      ]
+    }
+  ],
+  "api_key_enabled": false,
+  "api_key": "",
+  "browser_extension_path": "D:\\Project\\Ermiya_Download_Manager\\extension",
+  "port": 2764,
+  "file_types": "3GP 7Z AAC ACE AI AIF ARJ ASF AVI BIN BZ2 DMG DOC DOCX EXE GZ GZIP IMG ISO LZH M4A M4V MKV MOV MP3 MP4 MPA MPE MPEG MPG MSI MSU OGG OGV PDF PPT PPTX PSD QT R0* R1* RA RAR RM RMVB SEA SIT SITX TAR TIF TIFF TS TXT WAV WMA WMV XLS XLSX Z ZIP",
+  "whitelist_domains": "",
+  "ui": {
+    "theme": "Dark",
+    "show_icon_labels": true,
+    "notification_sounds": true,
+    "speed_unit": "Bytes",
+    "start_on_boot": false,
+    "minimize_to_tray": true,
+    "close_to_tray": true,
+    "language": "en"
+  }
+}

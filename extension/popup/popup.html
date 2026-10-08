@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoxLoader</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="FoxLoader-container">
+    <!-- Header -->
+    <header class="FoxLoader-header">
+      <div class="FoxLoader-brand">
+        <img src="../icons/icon-48.png" alt="FoxLoader" class="FoxLoader-logo">
+        <div class="FoxLoader-title-group">
+          <div class="FoxLoader-title">FoxLoader</div>
+          <div class="FoxLoader-version">v1.2 • Desktop Integration</div>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="lang-pills" style="display:flex; background:rgba(255,255,255,0.06); border-radius:6px; padding:2px;">
+          <button class="lang-btn active" data-lang="en" style="border:none; background:#00B4D8; color:#0F172A; font-weight:700; font-size:10px; padding:2px 7px; border-radius:4px; cursor:pointer;">EN</button>
+          <button class="lang-btn" data-lang="fa" style="border:none; background:transparent; color:#94A3B8; font-size:10px; padding:2px 7px; border-radius:4px; cursor:pointer;">فا</button>
+          <button class="lang-btn" data-lang="ku" style="border:none; background:transparent; color:#94A3B8; font-size:10px; padding:2px 7px; border-radius:4px; cursor:pointer;">کوردی</button>
+        </div>
+        <div id="connectionStatus" class="status-pill offline" title="Click to refresh connection">
+          <span class="status-dot"></span>
+          <span class="status-text">Connecting...</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Core Status / Stats Card -->
+    <div id="statsCard" class="stats-card hidden">
+      <div class="stats-icon">⚡</div>
+      <div class="stats-details">
+        <div class="stats-title" id="statsTitle">FoxLoader Engine Active</div>
+        <div class="stats-sub" id="statsSub">0 active downloads</div>
+      </div>
+      <button id="openDesktopBtn" class="btn-ghost-sm" title="Bring FoxLoader to front">Open App</button>
+    </div>
+
+    <!-- Master Interception & Sniffer Toggles -->
+    <section class="settings-section">
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-label" id="interceptLabel">Intercept Downloads</span>
+          <span class="toggle-desc" id="interceptDesc">Forward browser downloads to FoxLoader</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="interceptToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-label" id="snifferLabel">Media &amp; Video Sniffer</span>
+          <span class="toggle-desc" id="snifferDesc">Show download button on video players</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="snifferToggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Detected Media on Active Tab -->
+    <section class="media-section">
+      <div class="section-header">
+        <div class="section-title">
+          <span id="capturFoxLoaderediaLabel">Captured Media</span>
+          <span id="mediaCountBadge" class="count-badge">0</span>
+        </div>
+        <button id="refreshMediaBtn" class="btn-text" title="Rescan tab for media">Rescan</button>
+      </div>
+
+      <div id="mediaList" class="media-list">
+        <!-- Rendered dynamically -->
+        <div class="empty-state">
+          <div class="empty-icon">🎬</div>
+          <div class="empty-text">No media captured on this page yet</div>
+          <div class="empty-hint">Play a video or audio stream to capture it with FoxLoader</div>
+        </div>
+      </div>
+
+      <div id="downloadAllMediaContainer" class="hidden" style="margin-top: 10px;">
+        <button id="downloadAllMediaBtn" class="btn-primary full-width">Download All Captured Media</button>
+      </div>
+    </section>
+
+    <!-- Quick Tools / Page Actions -->
+    <section class="tools-section">
+      <div class="tools-grid">
+        <button id="batchGrabBtn" class="tool-card">
+          <div class="tool-icon">📋</div>
+          <div class="tool-label" id="grabLabel">Grab All Links</div>
+          <div class="tool-desc" id="grabDesc">Extract links from page</div>
+        </button>
+
+        <button id="quickAddUrlBtn" class="tool-card">
+          <div class="tool-icon">🔗</div>
+          <div class="tool-label" id="addLabel">Add Custom URL</div>
+          <div class="tool-desc" id="addDesc">Download any link</div>
+        </button>
+      </div>
+
+      <!-- Quick Add URL Input Bar (Collapsible) -->
+      <div id="quickAddContainer" class="quick-add-container hidden">
+        <div class="quick-input-group">
+          <input type="text" id="quickUrlInput" placeholder="Paste URL here (http://...)" />
+          <button id="pasteUrlBtn" class="btn-icon" title="Paste from clipboard">📋</button>
+          <button id="submitQuickUrlBtn" class="btn-accent-sm">Add</button>
+        </div>
+        <div id="quickAddFeedback" class="feedback-text"></div>
+      </div>
+    </section>
+
+    <!-- Site Exception (Whitelist) -->
+    <section class="site-rule-section">
+      <div class="site-rule-row">
+        <span class="site-icon">🌐</span>
+        <span id="currentDomainText" class="site-domain">current-domain.com</span>
+        <button id="toggleDomainExceptionBtn" class="btn-outline-sm">Exclude Site</button>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="FoxLoader-footer">
+      <div class="footer-left">
+        <span class="dot-indicator"></span>
+        <span id="portDisplay" style="cursor:pointer;" title="Click to customize port">Port: 2764</span>
+      </div>
+      <div class="footer-right">
+        <a href="#" id="openOptionsLink" class="footer-link">Options</a>
+      </div>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="ErmiyaDesktop.SettingsControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top Navigation / Action Bar for in-app settings -->
+        <Grid Grid.Row="0" Padding="20,12,20,12" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1" Background="{ThemeResource LayerFillColorDefaultBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Click="BackBtn_Click" Background="Transparent" BorderThickness="0" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE72B;" FontSize="13"/>
+                    <TextBlock x:Name="BackToDownloadsText" Text="Back to Downloads" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                </StackPanel>
+            </Button>
+
+            <InfoBar x:Name="SaveNotification" Grid.Column="1" IsOpen="False" Severity="Success" Message="Settings updated and synced successfully!" Margin="16,0,16,0" VerticalAlignment="Center"/>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <Button Content="Discard" Click="CancelBtn_Click" MinWidth="85"/>
+                <Button Content="Save Changes" Style="{ThemeResource AccentButtonStyle}" Click="SaveBtn_Click" MinWidth="110"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Main Body: Navigation sidebar on the left, Configuration panel on the right -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="230"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Settings Sidebar -->
+            <Border Grid.Column="0" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,1,0" Background="{ThemeResource LayerFillColorAltBrush}">
+                <ListView x:Name="SettingsSidebarList" SelectionMode="Single" SelectionChanged="SettingsSidebarList_SelectionChanged" Margin="8,12,8,12">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="CornerRadius" Value="6"/>
+                            <Setter Property="Margin" Value="0,2"/>
+                            <Setter Property="Padding" Value="10,8"/>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListViewItem x:Name="NavAppearanceItem" Tag="appearance" IsSelected="True">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE790;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Appearance" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </ListViewItem>
+                    <ListViewItem x:Name="NavEngineItem" Tag="engine">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE896;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Download Engine" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </ListViewItem>
+                    <ListViewItem x:Name="NavFileTypesItem" Tag="filetypes">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE8B7;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="File Types &amp; Save" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </ListViewItem>
+                    <ListViewItem x:Name="NavSpeedItem" Tag="speed">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xEC4A;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Speed Limiter" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </ListViewItem>
+                    <ListViewItem x:Name="NavQueuesItem" Tag="queues">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE823;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Queues &amp; Scheduler" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </ListViewItem>
+                    <ListViewItem x:Name="NavNetworkItem" Tag="network">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE968;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Network &amp; Proxy" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </ListViewItem>
+                    <ListViewItem x:Name="NavHostsItem" Tag="hosts">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE774;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Per-Host Rules" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </ListViewItem>
+                    <ListViewItem x:Name="NavBrowserItem" Tag="browser">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE72D;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="Browser &amp; API" VerticalAlignment="Center" FontWeight="Medium"/>
+                        </StackPanel>
+                    </ListViewItem>
+                </ListView>
+            </Border>
+
+            <!-- Configuration Content Area -->
+            <Grid Grid.Column="1" Margin="28,20,28,24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock x:Name="SectionTitle" Grid.Row="0" Text="Appearance" FontSize="22" FontWeight="SemiBold" Margin="0,0,0,16"/>
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <Grid>
+                        <!-- Section: Appearance -->
+                        <StackPanel x:Name="AppearancePanel" Spacing="16" Visibility="Visible">
+                            <StackPanel Spacing="6">
+                                <TextBlock x:Name="LanguageLabel" Text="Language" FontWeight="Medium"/>
+                                <ComboBox x:Name="LanguageComboBox" HorizontalAlignment="Stretch" SelectedIndex="0" SelectionChanged="LanguageComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="English" Tag="en"/>
+                                    <ComboBoxItem Content="پارسی (Persian)" Tag="fa"/>
+                                    <ComboBoxItem Content="کوردی سۆرانی (Kurdish Sorani)" Tag="ku"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock x:Name="ThemeLabel" Text="Theme" FontWeight="Medium"/>
+                                <ComboBox x:Name="ThemeComboBox" HorizontalAlignment="Stretch" SelectedIndex="0" SelectionChanged="ThemeComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="System Settings"/>
+                                    <ComboBoxItem Content="Dark"/>
+                                    <ComboBoxItem Content="Light"/>
+                                    <ComboBoxItem Content="Dark Teal"/>
+                                    <ComboBoxItem Content="Light Teal"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <ToggleSwitch x:Name="ShowIconLabelsToggle" Header="Show Icon Labels" IsOn="True" OffContent="Hidden" OnContent="Visible"/>
+                            <ToggleSwitch x:Name="NotificationSoundsToggle" Header="Notification Sounds" IsOn="True" OffContent="Disabled" OnContent="Enabled"/>
+                            
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Speed Units" FontWeight="Medium"/>
+                                <ComboBox x:Name="SpeedUnitComboBox" HorizontalAlignment="Stretch" SelectedIndex="0">
+                                    <ComboBoxItem Content="Bytes per second (MB/s, KB/s)"/>
+                                    <ComboBoxItem Content="Bits per second (Mbps, Kbps)"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <ToggleSwitch x:Name="StartOnBootToggle" Header="Start on Windows Boot" IsOn="False"/>
+                            <ToggleSwitch x:Name="MinimizeToTrayToggle" Header="Minimize to System Tray" IsOn="True"/>
+                            <ToggleSwitch x:Name="CloseToTrayToggle" Header="Close button minimizes to Tray" IsOn="True"/>
+                        </StackPanel>
+
+                        <!-- Section: Download Engine -->
+                        <StackPanel x:Name="EnginePanel" Spacing="16" Visibility="Collapsed">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="DefaultPathBox" Header="Default Download Folder" Margin="0,0,8,0"/>
+                                <Button Content="Browse..." Grid.Column="1" VerticalAlignment="Bottom" Height="32" Click="BrowsePath_Click"/>
+                            </Grid>
+
+                            <ToggleSwitch x:Name="AutoRouteCategoryToggle" Header="Auto-Route to Category Subfolders (downloads/FoxLoader/[category])" IsOn="True"/>
+                            
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Connection Threads (1 to 32)" FontWeight="Medium"/>
+                                <Slider x:Name="ThreadsSlider" Minimum="1" Maximum="32" Value="16" StepFrequency="1" TickFrequency="4" TickPlacement="BottomRight"/>
+                                <TextBlock x:Name="ThreadsValueText" Text="16" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+
+                            <ToggleSwitch x:Name="DynamicPartsToggle" Header="Dynamic Connection Splitting (split active parts as threads finish)" IsOn="True"/>
+                            <ToggleSwitch x:Name="IncompleteExtToggle" Header="Use .ermiya extension for incomplete downloads" IsOn="True"/>
+                            <ToggleSwitch x:Name="LastModifiedToggle" Header="Preserve server Last-Modified file timestamp" IsOn="True"/>
+                            <ToggleSwitch x:Name="TrackDeletedToggle" Header="Track deleted or missing files on disk" IsOn="True"/>
+                            <ToggleSwitch x:Name="DeleteOnCancelToggle" Header="Delete partial file from disk when download is canceled" IsOn="False"/>
+                            
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="Auto-Retry Count on Network Error (0 to 10)" FontWeight="Medium"/>
+                                <Slider x:Name="RetrySlider" Minimum="0" Maximum="10" Value="3" StepFrequency="1"/>
+                            </StackPanel>
+
+                            <ToggleSwitch x:Name="IgnoreSslToggle" Header="Ignore SSL/TLS certificate errors" IsOn="False"/>
+                            <TextBox x:Name="UserAgentBox" Header="Default User-Agent" Text="Mozilla/5.0 (Windows NT 10.0; Win64; x64) FoxLoader/1.0"/>
+                        </StackPanel>
+
+                        <!-- Section: File Types & Save To (Matching IDM File Types & Save To tabs) -->
+                        <StackPanel x:Name="FileTypesPanel" Spacing="16" Visibility="Collapsed">
+                            <TextBlock Text="Configure file types for automatic browser capture and category download destinations." Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Automatically start downloading the following file types:" FontWeight="SemiBold"/>
+                                <TextBox x:Name="FileTypesBox" AcceptsReturn="True" TextWrapping="Wrap" Height="75"
+                                         Text="3GP 7Z AAC ACE AI AIF ARJ ASF AVI BIN BZ2 DMG DOC DOCX EXE GZ GZIP IMG ISO LZH M4A M4V MKV MOV MP3 MP4 MPA MPE MPEG MPG MSI MSU OGG OGV PDF PPT PPTX PSD QT R0* R1* RA RAR RM RMVB SEA SIT SITX TAR TIF TIFF TS TXT WAV WMA WMV XLS XLSX Z ZIP"/>
+                                <TextBlock Text="Separate extensions with spaces or newlines. Wildcards like R0* are supported." FontSize="11.5" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Don't start downloading automatically from the following addresses (Whitelist / Exceptions):" FontWeight="SemiBold"/>
+                                <TextBox x:Name="WhitelistDomainsBox" AcceptsReturn="True" TextWrapping="Wrap" Height="65"
+                                         PlaceholderText="e.g. bank.com intranet.local (space or newline separated)"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Category Default Folders" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                            
+                            <StackPanel Spacing="8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Compressed:" VerticalAlignment="Center" FontWeight="Medium"/>
+                                    <TextBox x:Name="CatCompressedPathBox" Grid.Column="1" Margin="0,0,8,0"/>
+                                    <Button Content="..." Grid.Column="2" Tag="Compressed" Click="BrowseCategoryPath_Click"/>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Documents:" VerticalAlignment="Center" FontWeight="Medium"/>
+                                    <TextBox x:Name="CatDocumentsPathBox" Grid.Column="1" Margin="0,0,8,0"/>
+                                    <Button Content="..." Grid.Column="2" Tag="Documents" Click="BrowseCategoryPath_Click"/>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Music:" VerticalAlignment="Center" FontWeight="Medium"/>
+                                    <TextBox x:Name="CatMusicPathBox" Grid.Column="1" Margin="0,0,8,0"/>
+                                    <Button Content="..." Grid.Column="2" Tag="Music" Click="BrowseCategoryPath_Click"/>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Programs:" VerticalAlignment="Center" FontWeight="Medium"/>
+                                    <TextBox x:Name="CatProgramsPathBox" Grid.Column="1" Margin="0,0,8,0"/>
+                                    <Button Content="..." Grid.Column="2" Tag="Programs" Click="BrowseCategoryPath_Click"/>
+                                </Grid>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Video:" VerticalAlignment="Center" FontWeight="Medium"/>
+                                    <TextBox x:Name="CatVideoPathBox" Grid.Column="1" Margin="0,0,8,0"/>
+                                    <Button Content="..." Grid.Column="2" Tag="Video" Click="BrowseCategoryPath_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Section: Speed Limiter -->
+                        <StackPanel x:Name="SpeedPanel" Spacing="16" Visibility="Collapsed">
+                            <ToggleSwitch x:Name="SpeedLimiterToggle" Header="Enable Global Speed Limiter" IsOn="False"/>
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Speed Limit (KB/s, 0 = Unlimited)" FontWeight="Medium"/>
+                                <NumberBox x:Name="SpeedLimitBox" Value="0" SpinButtonPlacementMode="Inline" Minimum="0" Maximum="1048576"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Section: Queues & Scheduler -->
+                        <StackPanel x:Name="QueuesPanel" Spacing="16" Visibility="Collapsed">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Select Queue" FontWeight="Medium"/>
+                                <ComboBox x:Name="QueueSelectComboBox" HorizontalAlignment="Stretch" SelectedIndex="0" SelectionChanged="QueueSelectComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="Main Queue"/>
+                                    <ComboBoxItem Content="Night Queue"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <NumberBox x:Name="QueueMaxConcurrentBox" Header="Max Concurrent Downloads (1 to 32)" Value="3" Minimum="1" Maximum="32"/>
+                            <ToggleSwitch x:Name="QueueStopEmptyToggle" Header="Stop Queue when all downloads complete" IsOn="True"/>
+                            <ToggleSwitch x:Name="QueueSchedulerToggle" Header="Enable Scheduler for this Queue" IsOn="False"/>
+
+                            <StackPanel Orientation="Horizontal" Spacing="24">
+                                <TimePicker x:Name="QueueStartTimePicker" Header="Auto-Start Time"/>
+                                <TimePicker x:Name="QueueStopTimePicker" Header="Auto-Stop Time"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Action on Queue Completion" FontWeight="Medium"/>
+                                <ComboBox x:Name="PowerActionComboBox" HorizontalAlignment="Stretch" SelectedIndex="0">
+                                    <ComboBoxItem Content="None"/>
+                                    <ComboBoxItem Content="Shutdown PC"/>
+                                    <ComboBoxItem Content="Sleep"/>
+                                    <ComboBoxItem Content="Hibernate"/>
+                                </ComboBox>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Section: Network & Proxy -->
+                        <StackPanel x:Name="NetworkPanel" Spacing="16" Visibility="Collapsed">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Proxy Mode" FontWeight="Medium"/>
+                                <ComboBox x:Name="ProxyModeComboBox" HorizontalAlignment="Stretch" SelectedIndex="0">
+                                    <ComboBoxItem Content="Direct (No Proxy)"/>
+                                    <ComboBoxItem Content="System Proxy"/>
+                                    <ComboBoxItem Content="Manual Proxy"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Spacing="16">
+                                <ComboBox x:Name="ProxyTypeComboBox" Header="Protocol" SelectedIndex="0">
+                                    <ComboBoxItem Content="HTTP"/>
+                                    <ComboBoxItem Content="HTTPS"/>
+                                    <ComboBoxItem Content="SOCKS5"/>
+                                </ComboBox>
+                                <TextBox x:Name="ProxyHostBox" Header="Proxy Server" PlaceholderText="127.0.0.1" Width="250"/>
+                                <NumberBox x:Name="ProxyPortBox" Header="Port" Value="8080" Width="100"/>
+                            </StackPanel>
+
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="DNS Mode" FontWeight="Medium"/>
+                                <ComboBox x:Name="DnsModeComboBox" HorizontalAlignment="Stretch" SelectedIndex="0">
+                                    <ComboBoxItem Content="System DNS"/>
+                                    <ComboBoxItem Content="DNS-over-HTTPS (DoH)"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <ComboBox x:Name="DohProviderComboBox" Header="DoH Provider" HorizontalAlignment="Stretch" SelectedIndex="0">
+                                <ComboBoxItem Content="Cloudflare (1.1.1.1)"/>
+                                <ComboBoxItem Content="Google (8.8.8.8)"/>
+                                <ComboBoxItem Content="Quad9 (9.9.9.9)"/>
+                                <ComboBoxItem Content="Custom URL"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- Section: Per-Host Rules -->
+                        <StackPanel x:Name="HostsPanel" Spacing="16" Visibility="Collapsed">
+                            <TextBlock Text="Configure custom credentials and thread limits for specific websites" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBox x:Name="HostDomainBox" Header="Domain Name" PlaceholderText="example.com"/>
+                            <TextBox x:Name="HostUsernameBox" Header="Username (Basic Auth)" PlaceholderText="optional"/>
+                            <PasswordBox x:Name="HostPasswordBox" Header="Password" PlaceholderText="optional"/>
+                            <NumberBox x:Name="HostThreadsBox" Header="Max Threads for this Host (0 = default)" Value="0"/>
+                            <Button Content="Save Rule for this Host" Click="SaveHostRule_Click" Style="{ThemeResource AccentButtonStyle}"/>
+
+                            <TextBlock Text="Configured Rules" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                            <StackPanel x:Name="HostRulesListContainer" Spacing="8"/>
+                        </StackPanel>
+
+                        <!-- Section: Browser & API -->
+                        <StackPanel x:Name="BrowserPanel" Spacing="18" Visibility="Collapsed">
+                            <!-- Integration Port & Key -->
+                            <NumberBox x:Name="ApiPortBox" Header="Integration Server Port" Value="2764" Minimum="1024" Maximum="65535"/>
+                            <ToggleSwitch x:Name="ApiKeyToggle" Header="Require API Key for Extension Requests" IsOn="False"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="ApiKeyBox" Header="API Key" Margin="0,0,8,0"/>
+                                <Button Content="Generate New Key" Grid.Column="1" VerticalAlignment="Bottom" Height="32" Click="GenerateKey_Click"/>
+                            </Grid>
+
+                            <!-- Extension Source & Manual Installation -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Browser Extension Location" FontWeight="SemiBold"/>
+                                <TextBlock Text="Load this directory as an unpacked extension in Developer Mode:" Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="ExtensionPathBox" Margin="0,0,8,0" IsReadOnly="False" PlaceholderText="Select extension folder..."/>
+                                    <Button Content="Browse..." Grid.Column="1" Click="BrowseExtensionPath_Click" Margin="0,0,8,0"/>
+                                    <Button Content="Open Folder" Grid.Column="2" Style="{ThemeResource AccentButtonStyle}" Click="OpenExtensionFolder_Click"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- One-Click Native Messaging Registration -->
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Native Messaging Host Integration" FontWeight="SemiBold"/>
+                                <TextBlock Text="Allows browsers to communicate directly with FoxLoader without networking blocks or popups." Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12" TextWrapping="Wrap"/>
+                                <Button Content="Register for All Installed Browsers" Style="{ThemeResource AccentButtonStyle}" Click="RegisterAllBrowsers_Click" HorizontalAlignment="Stretch" Height="36"/>
+                                
+                                <TextBlock Text="Individual Browser Registration:" FontWeight="Medium" Margin="0,4,0,0"/>
+                                <Grid ColumnSpacing="8" RowSpacing="8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <Button Content="Google Chrome" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" Click="RegisterChrome_Click"/>
+                                    <Button Content="Microsoft Edge" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Click="RegisterEdge_Click"/>
+                                    <Button Content="Brave Browser" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Stretch" Click="RegisterBrave_Click"/>
+
+                                    <Button Content="Mozilla Firefox" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" Click="RegisterFirefox_Click"/>
+                                    <Button Content="Yandex Browser" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" Click="RegisterYandex_Click"/>
+                                    <Button Content="Arc Browser" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" Click="RegisterArc_Click"/>
+
+                                    <Button Content="Opera / Vivaldi" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch" Click="RegisterOperaVivaldi_Click"/>
+                                    <Button Content="Open Chrome Extensions" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" Click="OpenChromeExtensions_Click"/>
+                                    <Button Content="Open Edge Extensions" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" Click="OpenEdgeExtensions_Click"/>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" Margin="0,16,0,0">
+                    <Button Content="Discard" Click="CancelBtn_Click" MinWidth="85"/>
+                    <Button Content="Save Changes" Style="{ThemeResource AccentButtonStyle}" Click="SaveBtn_Click" MinWidth="120"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

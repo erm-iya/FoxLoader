@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="ErmiyaDesktop.AddDownloadWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Download File Info">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop />
+    </Window.SystemBackdrop>
+
+    <Grid Background="Transparent">
+        <Grid.RowDefinitions>
+            <!-- 0. Title Bar -->
+            <RowDefinition Height="Auto"/>
+            <!-- 1. Pinned Primary Inputs (Address & File Name) -->
+            <RowDefinition Height="Auto"/>
+            <!-- 2. Scrollable Middle Area (Intelligence Cards & Server Info) -->
+            <RowDefinition Height="*"/>
+            <!-- 3. Pinned Destination & Queue Controls (Always in view) -->
+            <RowDefinition Height="Auto"/>
+            <!-- 4. Pinned Action Buttons (Always in view) -->
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 0. Integrated Title Bar -->
+        <Grid x:Name="CustomHeaderGrid" Grid.Row="0" Padding="20,12,140,8" ColumnSpacing="12" Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Image Source="ms-appx:///Assets/logo.png" Width="24" Height="24" VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="Download File Info" FontSize="15" FontWeight="SemiBold"/>
+                <TextBlock x:Name="FileStatusBadge" Text="Connecting to server..." FontSize="11.5" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+
+            <ProgressRing x:Name="DetectProgressRing" Grid.Column="2" Width="18" Height="18" IsActive="True" VerticalAlignment="Center" Margin="0,0,8,0"/>
+
+            <!-- Always-on-top pin toggle -->
+            <ToggleButton x:Name="PinOnTopButton" Grid.Column="3" Width="32" Height="32" Padding="0" IsChecked="True" ToolTipService.ToolTip="Always on Top (Pinned)" Click="PinOnTopButton_Click">
+                <FontIcon Glyph="&#xE718;" FontSize="13"/>
+            </ToggleButton>
+        </Grid>
+
+        <!-- 1. Pinned Address and File Name (Directly at top) -->
+        <Grid Grid.Row="1" Padding="24,4,24,8">
+            <StackPanel Spacing="8">
+                <TextBox x:Name="UrlTextBox" Header="Address" TextWrapping="NoWrap" TextChanged="UrlTextBox_TextChanged"/>
+                <TextBox x:Name="FileNameTextBox" Header="File Name" />
+            </StackPanel>
+        </Grid>
+
+        <!-- 2. Dynamic Scrollable Middle Area (Intelligence Alert Cards) -->
+        <ScrollViewer Grid.Row="2" Padding="24,4,24,8" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="10">
+
+                <!-- Duplicate File Detected Card -->
+                <Border x:Name="DuplicateCard" Visibility="Collapsed" Background="#25E74C3C" BorderBrush="#80E74C3C" BorderThickness="1" CornerRadius="8" Padding="14,10">
+                    <Grid RowSpacing="6">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <FontIcon Glyph="&#xE7BA;" FontSize="18" Foreground="#FFE74C3C" VerticalAlignment="Top" Margin="0,2,10,0"/>
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock Text="Duplicate File Detected" FontWeight="SemiBold" FontSize="13.5" Foreground="#FFE74C3C"/>
+                            <TextBlock x:Name="DuplicateDescText" Text="You already downloaded this file previously." TextWrapping="Wrap" FontSize="11.5" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                            <Button x:Name="OpenExistingFileBtn" Content="Open Existing File" Style="{ThemeResource AccentButtonStyle}" Click="OpenExistingFileBtn_Click"/>
+                            <Button x:Name="OpenFolderBtn" Content="Show in Folder" Click="OpenFolderBtn_Click"/>
+                            <Button x:Name="DismissDuplicateBtn" Content="Download Again" Click="DismissDuplicateBtn_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Previous App Version Detected Card -->
+                <Border x:Name="PreviousVersionCard" Visibility="Collapsed" Background="#203498DB" BorderBrush="#603498DB" BorderThickness="1" CornerRadius="8" Padding="14,10">
+                    <Grid RowSpacing="6">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <FontIcon Glyph="&#xE895;" FontSize="18" Foreground="#FF3498DB" VerticalAlignment="Top" Margin="0,2,10,0"/>
+                        <StackPanel Grid.Column="1" Spacing="2">
+                            <TextBlock x:Name="PrevVerTitleText" Text="Previous Version Found" FontWeight="SemiBold" FontSize="13.5" Foreground="#FF3498DB"/>
+                            <TextBlock x:Name="PrevVerDescText" Text="An older version of this app is saved on disk." TextWrapping="Wrap" FontSize="11.5" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                            <Button x:Name="OpenOldVerFolderBtn" Content="Show Old File in Folder" Click="OpenOldVerFolderBtn_Click"/>
+                            <Button x:Name="DismissPrevVerBtn" Content="Proceed with Update" Click="DismissPrevVerBtn_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Multi-Part Archive Detected Card -->
+                <Border x:Name="MultiPartCard" Visibility="Collapsed" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="14,10">
+                    <StackPanel Spacing="8">
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <FontIcon Glyph="&#xF12B;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock x:Name="MultiPartTitleText" Text="Multi-Part Archive Detected" FontWeight="SemiBold" FontSize="13.5"/>
+                                <TextBlock x:Name="MultiPartDescText" Text="Discovered all available parts on server" FontSize="11.5" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                            <Button x:Name="DownloadAllPartsBtn" Grid.Column="2" Content="Download All Parts" Style="{ThemeResource AccentButtonStyle}" Click="DownloadAllPartsBtn_Click"/>
+                        </Grid>
+
+                        <!-- Parts list -->
+                        <ListView x:Name="PartsListView" SelectionMode="None" MaxHeight="130" BorderThickness="1" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" CornerRadius="6">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Padding="8,4" ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" MinWidth="0" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding FileName}" VerticalAlignment="Center" FontWeight="Medium" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding FormattedSize}" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                            <Button x:Name="DownloadSelectedPartsBtn" Content="Download Selected Parts" Click="DownloadSelectedPartsBtn_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- TV Series Detected Card -->
+                <Border x:Name="SeriesCard" Visibility="Collapsed" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="14,10">
+                    <StackPanel Spacing="8">
+                        <Grid ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <FontIcon Glyph="&#xE714;" FontSize="18" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock x:Name="SeriesTitleText" Text="TV Series Detected" FontWeight="SemiBold" FontSize="13.5"/>
+                                <TextBlock x:Name="SeriesSubtitleText" Text="Season &amp; Episode recognized" FontSize="11.5" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Episode Range Generator -->
+                        <Grid ColumnSpacing="10" RowSpacing="6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <NumberBox x:Name="SeriesStartEpBox" Header="From Episode" Value="1" Minimum="1" Maximum="99" SpinButtonPlacementMode="Inline"/>
+                            <NumberBox x:Name="SeriesEndEpBox" Grid.Column="1" Header="To Episode" Value="10" Minimum="1" Maximum="99" SpinButtonPlacementMode="Inline"/>
+                            <Button x:Name="DownloadSeriesEpisodesBtn" Grid.Column="2" Content="Download Season Episodes" Style="{ThemeResource AccentButtonStyle}" VerticalAlignment="Bottom" Height="32" Click="DownloadSeriesEpisodesBtn_Click"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Server File Details Indicator -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="14,10">
+                    <StackPanel Orientation="Horizontal" Spacing="32">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="Size:" FontWeight="Medium" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock x:Name="FileSizeText" Text="Estimating..." FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="Resume Support:" FontWeight="Medium" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock x:Name="ResumeSupportText" Text="Checking..." FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 3. Pinned Destination & Queue Controls (Permanently visible) -->
+        <Border Grid.Row="3" Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" Padding="24,10">
+            <StackPanel Spacing="10">
+                <!-- Category and Destination Folder -->
+                <Grid ColumnSpacing="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ComboBox x:Name="CategoryComboBox" Header="Category" HorizontalAlignment="Stretch" SelectionChanged="CategoryComboBox_SelectionChanged">
+                        <ComboBoxItem Content="General"/>
+                        <ComboBoxItem Content="Compressed"/>
+                        <ComboBoxItem Content="Documents"/>
+                        <ComboBoxItem Content="Music"/>
+                        <ComboBoxItem Content="Programs"/>
+                        <ComboBoxItem Content="Video"/>
+                    </ComboBox>
+
+                    <TextBox x:Name="SavePathTextBox" Header="Save to" Grid.Column="1"/>
+                    <Button x:Name="BrowseButton" Content="Browse..." Grid.Column="2" VerticalAlignment="Bottom" Height="32" Click="BrowseButton_Click"/>
+                </Grid>
+
+                <!-- Queue & Start Immediately -->
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <ComboBox x:Name="QueueComboBox" Header="Queue" HorizontalAlignment="Stretch" SelectedIndex="0">
+                        <ComboBoxItem Content="Main Queue"/>
+                        <ComboBoxItem Content="Night Queue"/>
+                    </ComboBox>
+
+                    <CheckBox x:Name="StartNowCheckBox" Grid.Column="1" Content="Start download immediately" IsChecked="True" VerticalAlignment="Bottom" Margin="0,0,0,4"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- 4. Pinned Bottom Action Bar (Permanently visible) -->
+        <Border Grid.Row="4" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" Padding="24,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Content="Download Later" Click="DownloadLaterButton_Click" VerticalAlignment="Center"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                    <Button Content="Cancel" Click="CancelButton_Click" MinWidth="85"/>
+                    <Button Content="Start Download" Style="{ThemeResource AccentButtonStyle}" Click="StartButton_Click" MinWidth="130"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Window
+    x:Class="ErmiyaDesktop.DownloadProgressWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ErmiyaDesktop"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="Download Status"
+    mc:Ignorable="d">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop />
+    </Window.SystemBackdrop>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Custom Title Bar -->
+        <TitleBar x:Name="AppTitleBar" Title="Download Status" Height="36">
+            <TitleBar.IconSource>
+                <ImageIconSource ImageSource="Assets/AppIcon.ico" />
+            </TitleBar.IconSource>
+        </TitleBar>
+
+        <!-- Header File Info -->
+        <Border Grid.Row="1" Padding="20,12,20,12" Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <FontIcon Glyph="&#xE896;" FontSize="28" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock x:Name="HeaderFileNameText" Text="downloaded_file.zip" FontSize="15" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock x:Name="HeaderUrlText" Text="https://example.com/file.zip" FontSize="11.5" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Tabs Content Area -->
+        <TabView Grid.Row="2" IsAddTabButtonVisible="False" Margin="12,8,12,8">
+            <!-- Tab 1: Download Status -->
+            <TabViewItem Header="Download status" IsClosable="False">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12,10,12,10">
+                    <StackPanel Spacing="10">
+                        <!-- Key Metrics Grid -->
+                        <Grid RowSpacing="6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Status:" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock x:Name="StatusValText" Grid.Row="0" Grid.Column="1" Text="Downloading" FontWeight="SemiBold"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="File size:" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock x:Name="FileSizeValText" Grid.Row="1" Grid.Column="1" Text="0 MB"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Downloaded:" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock x:Name="DownloadedValText" Grid.Row="2" Grid.Column="1" Text="0 MB (0%)"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Transfer rate:" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock x:Name="TransferRateValText" Grid.Row="3" Grid.Column="1" Text="0 MB/s" FontWeight="Medium" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Time left:" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock x:Name="TimeLeftValText" Grid.Row="4" Grid.Column="1" Text="Estimating..."/>
+
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Resume capability:" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock x:Name="ResumeCapabilityValText" Grid.Row="5" Grid.Column="1" Text="Yes"/>
+
+                            <TextBlock Grid.Row="6" Grid.Column="0" Text="Save to:" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock x:Name="SaveToValText" Grid.Row="6" Grid.Column="1" Text="C:\Downloads" TextTrimming="CharacterEllipsis"/>
+                        </Grid>
+
+                        <!-- Overall Progress Bar -->
+                        <StackPanel Spacing="4" Margin="0,6,0,0">
+                            <Grid>
+                                <TextBlock Text="Progress" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock x:Name="PercentText" Text="0%" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                            </Grid>
+                            <ProgressBar x:Name="OverallProgressBar" Minimum="0" Maximum="100" Value="0" Height="8" CornerRadius="4"/>
+                        </StackPanel>
+
+                        <!-- Multi-Chunk Segment Visualizer (IDM Style) -->
+                        <StackPanel Spacing="4" Margin="0,6,0,0">
+                            <TextBlock Text="Connection Segments &amp; Chunks" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <Border BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Height="22" Background="{ThemeResource LayerFillColorDefaultBrush}" Padding="2">
+                                <ItemsControl x:Name="ChunksItemsControl">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel Orientation="Horizontal" Spacing="2"/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="20" Background="{ThemeResource LayerFillColorAltBrush}" CornerRadius="2">
+                                                <Rectangle Fill="{ThemeResource AccentFillColorDefaultBrush}" Height="16" HorizontalAlignment="Left" Width="{Binding ProgressWidth, Converter={StaticResource WidthConverter}}"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabViewItem>
+
+            <!-- Tab 2: Speed Limiter -->
+            <TabViewItem Header="Speed limiter" IsClosable="False">
+                <StackPanel Spacing="16" Padding="16">
+                    <ToggleSwitch x:Name="JobSpeedLimiterToggle" Header="Use speed limiter for this download" IsOn="False" Toggled="JobSpeedLimiterToggle_Toggled"/>
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Maximum download speed (KB/s):" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <NumberBox x:Name="JobSpeedLimitBox" Value="500" Minimum="10" Maximum="1048576" SpinButtonPlacementMode="Inline" Width="200" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                    <Button Content="Apply Speed Limit" Style="{ThemeResource AccentButtonStyle}" Click="ApplySpeedLimit_Click"/>
+                </StackPanel>
+            </TabViewItem>
+
+            <!-- Tab 3: Options on Completion -->
+            <TabViewItem Header="Options on completion" IsClosable="False">
+                <StackPanel Spacing="12" Padding="16">
+                    <CheckBox x:Name="OptionShutdownCheck" Content="Shut down computer when download completes"/>
+                    <CheckBox x:Name="OptionSleepCheck" Content="Put computer to sleep when download completes"/>
+                    <CheckBox x:Name="OptionOpenFileCheck" Content="Open file when download completes"/>
+                    <CheckBox x:Name="OptionOpenFolderCheck" Content="Open folder when download completes"/>
+                    <CheckBox x:Name="OptionCloseWindowCheck" Content="Close this dialog when download completes"/>
+                </StackPanel>
+            </TabViewItem>
+        </TabView>
+
+        <!-- Footer Actions Bar -->
+        <Border Grid.Row="3" Padding="16,10,16,10" Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,1,0,0">
+            <Grid>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button x:Name="OpenFileBtn" Content="Open File" Click="OpenFileBtn_Click" Visibility="Collapsed"/>
+                    <Button x:Name="OpenFolderBtn" Content="Open Folder" Click="OpenFolderBtn_Click"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                    <Button x:Name="PauseResumeBtn" Content="Pause" Style="{ThemeResource AccentButtonStyle}" Click="PauseResumeBtn_Click" MinWidth="85"/>
+                    <Button x:Name="CancelBtn" Content="Cancel" Click="CancelBtn_Click" MinWidth="75"/>
+                    <Button x:Name="HideBtn" Content="Hide" Click="HideBtn_Click" MinWidth="75"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
