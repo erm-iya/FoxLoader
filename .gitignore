@@ -13,6 +13,8 @@ target*/
 
 # Releases & Packages
 ReleaseOutput/
+ReleaseBundle/
+ZipBundle/
 *.zip
 
 # Local Runtime Data & Downloads
@@ -21,6 +23,7 @@ chat_docs.md
 *.tmp
 database.json
 downloads/
+installer.iss
 
 # IDEs & OS
 .vscode/

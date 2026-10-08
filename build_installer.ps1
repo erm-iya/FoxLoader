@@ -38,8 +38,37 @@ Copy-Item -Path "extension" -Destination "$OutputDir\extension" -Recurse -Force
 Write-Host "Zipping Extension for Chrome Web Store..."
 Compress-Archive -Path "extension\*" -DestinationPath "$OutputDir\extension.zip" -Force
 
-Write-Host "Zipping Final Release Bundle..."
-Compress-Archive -Path "$OutputDir\*" -DestinationPath $ZipName -Force
+# Compile Inno Setup Installer
+Write-Host "Compiling Inno Setup Installer..."
+$isccPath = "C:\Program Files\Inno Setup 7\ISCC.exe"
+if (-not (Test-Path $isccPath)) {
+    $isccPath = (Get-ChildItem "C:\Program Files*\Inno Setup*" -Recurse -Filter "ISCC.exe" -ErrorAction SilentlyContinue | Select-Object -First 1).FullName
+}
+if ($isccPath -and (Test-Path $isccPath)) {
+    & $isccPath "installer.iss"
+} else {
+    Write-Warning "ISCC.exe not found! Please ensure Inno Setup is installed."
+}
+
+# Create Clean Zip Bundle containing only: Setup.exe, extension folder, and register .bat
+Write-Host "Assembling Clean Release Bundle..."
+$bundleDir = "ZipBundle"
+if (Test-Path $bundleDir) { Remove-Item -Recurse -Force $bundleDir }
+New-Item -ItemType Directory -Force -Path $bundleDir | Out-Null
+
+Copy-Item "ReleaseBundle\FoxLoader_Setup_v1.0.exe" -Destination "$bundleDir\" -Force
+Copy-Item -Path "extension" -Destination "$bundleDir\extension" -Recurse -Force
+Copy-Item -Path "$OutputDir\register_browser_integration.bat" -Destination "$bundleDir\" -Force
+
+# Zip Final Release Bundle
+Write-Host "Zipping Final Clean Release Bundle..."
+if (Get-Command 7z -ErrorAction SilentlyContinue) {
+    7z a -tzip -mx=9 $ZipName ".\$bundleDir\*" | Out-Null
+} else {
+    Compress-Archive -Path "$bundleDir\*" -DestinationPath $ZipName -Force
+}
+
+Remove-Item -Recurse -Force $bundleDir -ErrorAction SilentlyContinue
 
 Write-Host "Done! Output is $ZipName"
 
