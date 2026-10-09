@@ -72,9 +72,26 @@ public partial class App : Application
     {
         try
         {
-            var running = System.Diagnostics.Process.GetProcessesByName("ermiya-core");
-            if (running.Length == 0)
+            bool isCoreResponsive = false;
+            try
             {
+                using var client = new System.Net.Http.HttpClient();
+                client.Timeout = TimeSpan.FromMilliseconds(800);
+                var check = client.GetAsync("http://127.0.0.1:2764/status").GetAwaiter().GetResult();
+                if (check.IsSuccessStatusCode)
+                {
+                    isCoreResponsive = true;
+                }
+            }
+            catch { }
+
+            if (!isCoreResponsive)
+            {
+                foreach (var p in System.Diagnostics.Process.GetProcessesByName("ermiya-core"))
+                {
+                    try { p.Kill(); } catch { }
+                }
+
                 var corePath = FindCoreBinary();
                 if (corePath != null)
                 {

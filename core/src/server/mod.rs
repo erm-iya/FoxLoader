@@ -108,6 +108,19 @@ async fn security_headers_middleware(req: Request, next: Next) -> Result<Respons
     Ok(response)
 }
 
+fn create_reuse_listener(addr: SocketAddr) -> std::io::Result<tokio::net::TcpListener> {
+    let socket = socket2::Socket::new(
+        socket2::Domain::IPV4,
+        socket2::Type::STREAM,
+        Some(socket2::Protocol::TCP),
+    )?;
+    let _ = socket.set_reuse_address(true);
+    socket.set_nonblocking(true)?;
+    socket.bind(&addr.into())?;
+    socket.listen(1024)?;
+    tokio::net::TcpListener::from_std(socket.into())
+}
+
 pub async fn start_server(manager: DownloadManager) {
     manager.load_db().await;
     manager.start_background_workers();
@@ -140,11 +153,11 @@ pub async fn start_server(manager: DownloadManager) {
     let target_port = if configured_port >= 1024 { configured_port } else { 2764 };
     let addr = SocketAddr::from(([127, 0, 0, 1], target_port));
 
-    let listener = match tokio::net::TcpListener::bind(&addr).await {
+    let listener = match create_reuse_listener(addr) {
         Ok(l) => l,
         Err(_) => {
             let fallback_addr = SocketAddr::from(([127, 0, 0, 1], 2764));
-            match tokio::net::TcpListener::bind(&fallback_addr).await {
+            match create_reuse_listener(fallback_addr) {
                 Ok(l) => l,
                 Err(e) => {
                     eprintln!("Port 2764 is already bound by existing FoxLoader process ({}). Operating in companion/bridge mode.", e);
