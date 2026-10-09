@@ -1503,6 +1503,7 @@ namespace ErmiyaDesktop
         public ChunkStatus[] Chunks { get; set; } = Array.Empty<ChunkStatus>();
     }
 
+    [Microsoft.UI.Xaml.Data.Bindable]
     public class DownloadItemViewModel : System.ComponentModel.INotifyPropertyChanged
     {
         public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
@@ -1580,6 +1581,7 @@ namespace ErmiyaDesktop
         }
     }
 
+    [Microsoft.UI.Xaml.Data.Bindable]
     public class BatchLinkItemViewModel : System.ComponentModel.INotifyPropertyChanged
     {
         public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
@@ -1650,6 +1652,7 @@ namespace ErmiyaDesktop
         public List<BatchInteractiveLinkIncoming> Links { get; set; } = new();
     }
 
+    [Microsoft.UI.Xaml.Data.Bindable]
     public class ChunkViewModel : System.ComponentModel.INotifyPropertyChanged
     {
         public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
