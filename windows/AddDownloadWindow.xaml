@@ -35,7 +35,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Image Source="ms-appx:///Assets/logo.png" Width="24" Height="24" VerticalAlignment="Center"/>
+            <Image x:Name="HeaderLogoImage" Width="24" Height="24" VerticalAlignment="Center"/>
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock Text="Download File Info" FontSize="15" FontWeight="SemiBold"/>
                 <TextBlock x:Name="FileStatusBadge" Text="Connecting to server..." FontSize="11.5" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>

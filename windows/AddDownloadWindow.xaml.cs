@@ -88,6 +88,16 @@ namespace ErmiyaDesktop
                 appWindow.SetIcon(iconPath);
             }
 
+            try
+            {
+                string logoPath = Path.Combine(AppContext.BaseDirectory, "Assets", "logo.png");
+                if (File.Exists(logoPath) && HeaderLogoImage != null)
+                {
+                    HeaderLogoImage.Source = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(new Uri(logoPath));
+                }
+            }
+            catch { }
+
             // Pin on top by default so it stays above the browser window
             SetAlwaysOnTop(true);
 

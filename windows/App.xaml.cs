@@ -80,7 +80,7 @@ public partial class App : Application
                 {
                     var proc = new System.Diagnostics.Process();
                     proc.StartInfo.FileName = corePath;
-                    proc.StartInfo.WorkingDirectory = @"D:\Project\Ermiya_Download_Manager";
+                    proc.StartInfo.WorkingDirectory = Path.GetDirectoryName(corePath) ?? AppContext.BaseDirectory;
                     proc.StartInfo.UseShellExecute = false;
                     proc.StartInfo.CreateNoWindow = true;
                     proc.Start();
@@ -93,11 +93,16 @@ public partial class App : Application
         MainWindowInstance = new MainWindow();
         _window = MainWindowInstance;
         _window.Closed += (s, e) => {
-            if (_coreProcess != null && !_coreProcess.HasExited)
-            {
-                try { _coreProcess.Kill(); } catch { }
-            }
+            StopCoreProcess();
         };
         _window.Activate();
+    }
+
+    public void StopCoreProcess()
+    {
+        if (_coreProcess != null && !_coreProcess.HasExited)
+        {
+            try { _coreProcess.Kill(); } catch { }
+        }
     }
 }

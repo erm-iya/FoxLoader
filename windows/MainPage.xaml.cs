@@ -69,7 +69,7 @@ namespace ErmiyaDesktop
                                     win.Activate();
                                 } catch (Exception ex) {
                                     _isDialogShowing = false;
-                                    System.Diagnostics.Debug.WriteLine($"Failed to open AddDownloadWindow: {ex}");
+                                    try { System.IO.File.AppendAllText(System.IO.Path.Combine(AppContext.BaseDirectory, "crash.log"), $"[AddDownloadWindow Error]: {ex}\n"); } catch {}
                                 }
                             }
                         }
@@ -376,6 +376,10 @@ namespace ErmiyaDesktop
             if (HeaderQueues != null) HeaderQueues.Content = lm.Get("Nav_Queues", "Queues");
             if (ItemMainQueue != null) ItemMainQueue.Content = lm.Get("Nav_MainQueue", "Main Queue");
             if (ItemNightQueue != null) ItemNightQueue.Content = lm.Get("Nav_NightQueue", "Night Queue");
+            if (NavView?.SettingsItem is NavigationViewItem settingsNav)
+            {
+                settingsNav.Content = lm.Get("Nav_Settings", "Settings");
+            }
 
             if (BtnAddUrl != null) BtnAddUrl.Label = lm.Get("Toolbar_AddUrl", "Add URL");
             if (BtnBatchUrls != null) BtnBatchUrls.Label = lm.Get("Toolbar_BatchUrls", "Batch URLs");

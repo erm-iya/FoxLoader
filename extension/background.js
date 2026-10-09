@@ -181,22 +181,49 @@ async function sendToCore(url, fileName) {
         file_name: fileName
     };
 
+    // 1. Try direct HTTP endpoint if FoxLoader is already running
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1200);
+
         const response = await fetch(`${FoxLoader_CORE_URL}/add_interactive`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         if (response.ok) {
             showNotification("FoxLoader", `Intercepted: ${fileName}\nPrompting FoxLoader window...`);
-        } else {
-            throw new Error("Core rejected");
+            return;
         }
     } catch {
-        showNotification("FoxLoader Connection Failed", "Ensure FoxLoader desktop app is running.");
+        // Core is offline or unreachable - proceed to Native Host auto-launch
+    }
+
+    // 2. Launch FoxLoader desktop and dispatch request via Chrome Native Messaging
+    try {
+        chrome.runtime.sendNativeMessage(
+            "com.ermiya.downloadmanager",
+            {
+                action: "add_interactive",
+                url: url,
+                file_name: fileName
+            },
+            (response) => {
+                if (chrome.runtime.lastError) {
+                    console.warn("FoxLoader Native Messaging launch error:", chrome.runtime.lastError.message);
+                    showNotification("FoxLoader Offline", "Could not connect to FoxLoader. Please launch FoxLoader.");
+                } else {
+                    showNotification("FoxLoader Starting", `Intercepted: ${fileName}\nStarting FoxLoader...`);
+                }
+            }
+        );
+    } catch (e) {
+        showNotification("FoxLoader Offline", "Could not connect to FoxLoader. Please launch FoxLoader.");
     }
 }
 
@@ -208,21 +235,39 @@ async function sendBatchInteractiveToCore(pageUrl, pageTitle, links) {
     };
 
     try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1200);
+
         const response = await fetch(`${FoxLoader_CORE_URL}/add_batch_interactive`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         if (response.ok) {
             showNotification("FoxLoader", `Found ${links.length} link(s) on page.\nOpening FoxLoader Selection Dialog...`);
-        } else {
-            throw new Error("Core rejected");
+            return;
         }
     } catch {
-        showNotification("FoxLoader Connection Failed", "Ensure FoxLoader desktop app is running.");
+        // Core is offline - fallback to Native Messaging
+    }
+
+    try {
+        chrome.runtime.sendNativeMessage(
+            "com.ermiya.downloadmanager",
+            {
+                action: "launch"
+            },
+            () => {
+                showNotification("FoxLoader Starting", "Starting FoxLoader to process batch links...");
+            }
+        );
+    } catch {
+        showNotification("FoxLoader Offline", "Ensure FoxLoader desktop app is running.");
     }
 }
 

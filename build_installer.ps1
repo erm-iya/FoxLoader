@@ -3,6 +3,12 @@ $ErrorActionPreference = "Stop"
 $OutputDir = "ReleaseOutput"
 $ZipName = "FoxLoader_v1.0_Windows_x64.zip"
 
+Write-Host "Building Rust Core (Release)..."
+cargo build --release --manifest-path core/Cargo.toml
+
+Write-Host "Publishing Windows WinUI 3 (Release x64)..."
+dotnet publish windows\ErmiyaDesktop.csproj -c Release -p:Platform=x64
+
 Write-Host "Cleaning up old release..."
 if (Test-Path $OutputDir) { Remove-Item -Recurse -Force $OutputDir }
 if (Test-Path $ZipName) { Remove-Item -Force $ZipName }
@@ -10,12 +16,17 @@ if (Test-Path $ZipName) { Remove-Item -Force $ZipName }
 New-Item -ItemType Directory -Force -Path $OutputDir | Out-Null
 
 Write-Host "Copying Windows UI..."
-Copy-Item -Path "windows\bin\Release\net8.0-windows10.0.26100.0\win-x64\publish\*" -Destination $OutputDir -Recurse -Force
+$publishDir = "windows\bin\Release\net8.0-windows10.0.26100.0\win-x64\publish"
+if (-not (Test-Path $publishDir)) {
+    $publishDir = "windows\bin\x64\Release\net8.0-windows10.0.26100.0\win-x64\publish"
+}
+Copy-Item -Path "$publishDir\*" -Destination $OutputDir -Recurse -Force
 
 Write-Host "Copying Rust Core..."
 Copy-Item -Path "target\release\ermiya-core.exe" -Destination $OutputDir -Force
 
 Write-Host "Copying Assets & Manifests..."
+Copy-Item -Path "windows\Assets" -Destination "$OutputDir\Assets" -Recurse -Force
 Copy-Item -Path "logo.png" -Destination $OutputDir -Force
 Copy-Item -Path "windows\native_host_manifest.json" -Destination $OutputDir -Force
 

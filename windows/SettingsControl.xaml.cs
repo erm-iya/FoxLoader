@@ -83,22 +83,42 @@ namespace ErmiyaDesktop
             }
         }
 
+        private string _currentSectionTag = "appearance";
+
         public void ApplyLanguage()
         {
             var lm = LanguageManager.Instance;
             this.FlowDirection = lm.CurrentFlowDirection;
 
-            LanguageLabel.Text = lm.Get("Settings_Language", "Language");
-            ThemeLabel.Text = lm.Get("Settings_Theme", "Theme");
-            ShowIconLabelsToggle.Header = lm.Get("Settings_ShowIconLabels", "Show Icon Labels");
-            NotificationSoundsToggle.Header = lm.Get("Settings_NotificationSounds", "Notification Sounds");
-            StartOnBootToggle.Header = lm.Get("Settings_StartOnBoot", "Start on Windows Boot");
-            MinimizeToTrayToggle.Header = lm.Get("Settings_MinimizeToTray", "Minimize to System Tray");
-            CloseToTrayToggle.Header = lm.Get("Settings_CloseToTray", "Close button minimizes to Tray");
+            if (BackToDownloadsText != null) BackToDownloadsText.Text = lm.Get("Common_BackToDownloads", "Back to Downloads");
+            if (DiscardBtn != null) DiscardBtn.Content = lm.Get("Common_Discard", "Discard");
+            if (SaveBtn != null) SaveBtn.Content = lm.Get("Common_Save", "Save Changes");
+            if (BottomDiscardBtn != null) BottomDiscardBtn.Content = lm.Get("Common_Discard", "Discard");
+            if (BottomSaveBtn != null) BottomSaveBtn.Content = lm.Get("Common_Save", "Save Changes");
+
+            if (NavAppearanceText != null) NavAppearanceText.Text = lm.Get("Settings_Appearance", "Appearance");
+            if (NavEngineText != null) NavEngineText.Text = lm.Get("Settings_Engine", "Download Engine");
+            if (NavFileTypesText != null) NavFileTypesText.Text = lm.Get("Settings_FileTypes", "File Types & Save");
+            if (NavSpeedText != null) NavSpeedText.Text = lm.Get("Settings_Speed", "Speed Limiter");
+            if (NavQueuesText != null) NavQueuesText.Text = lm.Get("Settings_Queues", "Queues & Scheduler");
+            if (NavNetworkText != null) NavNetworkText.Text = lm.Get("Settings_Network", "Network & Proxy");
+            if (NavHostsText != null) NavHostsText.Text = lm.Get("Settings_Hosts", "Per-Host Rules");
+            if (NavBrowserText != null) NavBrowserText.Text = lm.Get("Settings_Browser", "Browser & API");
+
+            if (LanguageLabel != null) LanguageLabel.Text = lm.Get("Settings_Language", "Language");
+            if (ThemeLabel != null) ThemeLabel.Text = lm.Get("Settings_Theme", "Theme");
+            if (ShowIconLabelsToggle != null) ShowIconLabelsToggle.Header = lm.Get("Settings_ShowIconLabels", "Show Icon Labels");
+            if (NotificationSoundsToggle != null) NotificationSoundsToggle.Header = lm.Get("Settings_NotificationSounds", "Notification Sounds");
+            if (StartOnBootToggle != null) StartOnBootToggle.Header = lm.Get("Settings_StartOnBoot", "Start on Windows Boot");
+            if (MinimizeToTrayToggle != null) MinimizeToTrayToggle.Header = lm.Get("Settings_MinimizeToTray", "Minimize to System Tray");
+            if (CloseToTrayToggle != null) CloseToTrayToggle.Header = lm.Get("Settings_CloseToTray", "Close button minimizes to Tray");
+
+            ShowSection(_currentSectionTag);
         }
 
         public void ShowSection(string tag, string? title = null)
         {
+            _currentSectionTag = tag;
             AppearancePanel.Visibility = tag == "appearance" ? Visibility.Visible : Visibility.Collapsed;
             EnginePanel.Visibility = tag == "engine" ? Visibility.Visible : Visibility.Collapsed;
             FileTypesPanel.Visibility = tag == "filetypes" ? Visibility.Visible : Visibility.Collapsed;
@@ -113,7 +133,7 @@ namespace ErmiyaDesktop
             {
                 "appearance" => lm.Get("Settings_Appearance", "Appearance"),
                 "engine" => lm.Get("Settings_Engine", "Download Engine"),
-                "filetypes" => "File Types & Save Folders",
+                "filetypes" => lm.Get("Settings_FileTypes", "File Types & Save"),
                 "speed" => lm.Get("Settings_Speed", "Speed Limiter"),
                 "queues" => lm.Get("Settings_Queues", "Queues & Scheduler"),
                 "network" => lm.Get("Settings_Network", "Network & Proxy"),
