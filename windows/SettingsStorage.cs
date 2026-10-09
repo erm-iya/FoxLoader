@@ -26,14 +26,12 @@ namespace ErmiyaDesktop
                 }
             }
 
-            // Default save destination
-            var projectRoot = @"D:\Project\Ermiya_Download_Manager";
-            if (Directory.Exists(projectRoot))
+            var defaultPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".FoxLoader");
+            if (!Directory.Exists(defaultPath))
             {
-                return Path.Combine(projectRoot, "settings.json");
+                Directory.CreateDirectory(defaultPath);
             }
-
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".FoxLoader", "settings.json");
+            return Path.Combine(defaultPath, "settings.json");
         }
 
         public static AppSettingsModel LoadFromDisk()

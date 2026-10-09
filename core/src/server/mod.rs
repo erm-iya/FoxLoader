@@ -72,6 +72,7 @@ async fn security_headers_middleware(req: Request, next: Next) -> Result<Respons
     if let Some(ref origin) = origin_owned {
         let is_allowed = origin.starts_with("chrome-extension://")
             || origin.starts_with("moz-extension://")
+            || origin.starts_with("extension://")
             || origin.starts_with("http://127.0.0.1")
             || origin.starts_with("http://localhost");
 
@@ -91,6 +92,7 @@ async fn security_headers_middleware(req: Request, next: Next) -> Result<Respons
         }
         res_headers.insert("Access-Control-Allow-Methods", HeaderValue::from_static("GET, POST, OPTIONS"));
         res_headers.insert("Access-Control-Allow-Headers", HeaderValue::from_static("Content-Type, Authorization, X-Requested-With"));
+        res_headers.insert("Access-Control-Allow-Private-Network", HeaderValue::from_static("true"));
         return Ok(response);
     }
 
@@ -104,6 +106,7 @@ async fn security_headers_middleware(req: Request, next: Next) -> Result<Respons
     }
     response.headers_mut().insert("Access-Control-Allow-Methods", HeaderValue::from_static("GET, POST, OPTIONS"));
     response.headers_mut().insert("Access-Control-Allow-Headers", HeaderValue::from_static("Content-Type, Authorization, X-Requested-With"));
+    response.headers_mut().insert("Access-Control-Allow-Private-Network", HeaderValue::from_static("true"));
 
     Ok(response)
 }

@@ -260,10 +260,14 @@ pub fn resolve_config_path(filename: &str) -> std::path::PathBuf {
     }
     // Check user profile directory
     if let Ok(userprofile) = std::env::var("USERPROFILE") {
-        let candidate = std::path::Path::new(&userprofile).join(".FoxLoader").join(filename);
+        let foxloader_dir = std::path::Path::new(&userprofile).join(".FoxLoader");
+        let candidate = foxloader_dir.join(filename);
         if candidate.exists() {
             return candidate;
         }
+        // If it doesn't exist anywhere, create directory and return this as default
+        let _ = std::fs::create_dir_all(&foxloader_dir);
+        return candidate;
     }
     std::path::PathBuf::from(filename)
 }
