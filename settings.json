@@ -141,10 +141,10 @@
       ]
     }
   ],
+  "port": 2764,
   "api_key_enabled": false,
   "api_key": "",
   "browser_extension_path": "D:\\Project\\Ermiya_Download_Manager\\extension",
-  "port": 2764,
   "file_types": "3GP 7Z AAC ACE AI AIF ARJ ASF AVI BIN BZ2 DMG DOC DOCX EXE GZ GZIP IMG ISO LZH M4A M4V MKV MOV MP3 MP4 MPA MPE MPEG MPG MSI MSU OGG OGV PDF PPT PPTX PSD QT R0* R1* RA RAR RM RMVB SEA SIT SITX TAR TIF TIFF TS TXT WAV WMA WMV XLS XLSX Z ZIP",
   "whitelist_domains": "",
   "ui": {

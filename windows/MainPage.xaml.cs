@@ -209,7 +209,7 @@ namespace ErmiyaDesktop
             catch { }
         }
 
-        private async void AddDownloadBtn_Click(object sender, RoutedEventArgs e)
+        public async void AddDownloadBtn_Click(object sender, RoutedEventArgs e)
         {
             NewDownloadDialog.XamlRoot = this.XamlRoot;
             SavePathTextBox.Text = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + @"\Downloads\FoxLoader";
@@ -1317,7 +1317,7 @@ namespace ErmiyaDesktop
 
         private object? _lastSelectFoxLoaderenuItem = null;
 
-        private void OpenSettings(string section = "appearance")
+        public void OpenSettings(string section = "appearance")
         {
             if (NavView.SelectedItem != null && NavView.SelectedItem != NavView.SettingsItem)
             {

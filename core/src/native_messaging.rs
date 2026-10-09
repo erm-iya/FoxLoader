@@ -68,8 +68,16 @@ pub fn run_native_messaging_loop(manager: DownloadManager) {
 
                     if !url.is_empty() {
                         let mgr = manager.clone();
+                        let u_clone = url.clone();
+                        let f_clone = file_name.clone();
                         tokio::spawn(async move {
-                            mgr.push_interactive(InteractiveReq { url, file_name }).await;
+                            mgr.push_interactive(InteractiveReq { url: u_clone.clone(), file_name: f_clone.clone() }).await;
+                            let client = reqwest::Client::new();
+                            let _ = client.post("http://127.0.0.1:2764/add_interactive")
+                                .json(&serde_json::json!({ "url": u_clone, "file_name": f_clone }))
+                                .timeout(std::time::Duration::from_millis(1500))
+                                .send()
+                                .await;
                         });
                         ensure_desktop_running();
                     }

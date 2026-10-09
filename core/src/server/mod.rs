@@ -142,16 +142,23 @@ pub async fn start_server(manager: DownloadManager) {
 
     let listener = match tokio::net::TcpListener::bind(&addr).await {
         Ok(l) => l,
-        Err(e) => {
-            eprintln!("Failed to bind port {}: {}. Falling back to default port 2764", target_port, e);
+        Err(_) => {
             let fallback_addr = SocketAddr::from(([127, 0, 0, 1], 2764));
-            tokio::net::TcpListener::bind(&fallback_addr).await.expect("Failed to bind to 127.0.0.1:2764")
+            match tokio::net::TcpListener::bind(&fallback_addr).await {
+                Ok(l) => l,
+                Err(e) => {
+                    eprintln!("Port 2764 is already bound by existing FoxLoader process ({}). Operating in companion/bridge mode.", e);
+                    loop {
+                        tokio::time::sleep(tokio::time::Duration::from_secs(3600)).await;
+                    }
+                }
+            }
         }
     };
 
     let bound_port = listener.local_addr().map(|a| a.port()).unwrap_or(target_port);
     println!("FoxLoader Server running on http://127.0.0.1:{}", bound_port);
-    axum::serve(listener, app).await.unwrap();
+    let _ = axum::serve(listener, app).await;
 }
 
 async fn add_handler(

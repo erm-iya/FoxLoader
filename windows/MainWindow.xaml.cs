@@ -115,7 +115,44 @@ public sealed partial class MainWindow : Window
     {
         try
         {
-            _trayManager = new TrayManager(_hwnd, RestoreAndActivate, ExitApplication);
+            _trayManager = new TrayManager(
+                _hwnd,
+                onOpen: RestoreAndActivate,
+                onAdd: OpenAddDownloadDialog,
+                onSettings: OpenSettingsPage,
+                onToggleSpeedLimiter: ToggleSpeedLimiter,
+                onExit: ExitApplication
+            );
+        }
+        catch { }
+    }
+
+    public void OpenAddDownloadDialog()
+    {
+        RestoreAndActivate();
+        if (RootFrame.Content is MainPage mainPage)
+        {
+            mainPage.AddDownloadBtn_Click(this, new RoutedEventArgs());
+        }
+    }
+
+    public void OpenSettingsPage()
+    {
+        RestoreAndActivate();
+        if (RootFrame.Content is MainPage mainPage)
+        {
+            mainPage.OpenSettings();
+        }
+    }
+
+    public void ToggleSpeedLimiter()
+    {
+        try
+        {
+            var settings = SettingsStorage.LoadFromDisk();
+            if (settings.SpeedLimiter == null) settings.SpeedLimiter = new();
+            settings.SpeedLimiter.Enabled = !settings.SpeedLimiter.Enabled;
+            SettingsStorage.SaveToDisk(settings);
         }
         catch { }
     }

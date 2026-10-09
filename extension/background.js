@@ -184,7 +184,7 @@ async function sendToCore(url, fileName) {
     // 1. Try direct HTTP endpoint if FoxLoader is already running
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1200);
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
 
         const response = await fetch(`${FoxLoader_CORE_URL}/add_interactive`, {
             method: "POST",
