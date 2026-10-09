@@ -24,6 +24,7 @@ chat_docs.md
 database.json
 downloads/
 installer.iss
+docs/
 
 # IDEs & OS
 .vscode/
